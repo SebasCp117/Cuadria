@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUADRiA — Copiloto Contable</title>
+  <meta name="description" content="CUADRiA automatiza los procesos repetitivos de tu despacho contable. Recepción de documentos, seguimiento a clientes, reportes y más — todo en automático."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0f0e0d;
+      --bg2:      #161512;
+      --bg3:      #1e1c19;
+      --white:    #f2ede6;
+      --cream:    #e8e0d4;
+      --purple:   #7c5cbf;
+      --purple-l: #9b7fd4;
+      --purple-d: #5a3fa0;
+      --purple-g: rgba(124,92,191,0.12);
+      --gray1:    #2a2723;
+      --gray2:    #3d3a35;
+      --gray3:    #6b6660;
+      --gray4:    #9a948c;
+      --gray5:    #c4bdb4;
+      --border:   rgba(242,237,230,0.07);
+      --border-p: rgba(124,92,191,0.2);
+    }
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;line-height:1.6}
+
+    /* ── NOISE ── */
+    body::before{
+      content:'';position:fixed;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      pointer-events:none;z-index:0;opacity:.5;
+    }
+
+    /* ── NAV ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.25rem 5vw;
+      background:rgba(15,14,13,0.85);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+
+    .logo{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+    .logo-mark{
+      width:36px;height:36px;
+      background:var(--purple);
+      border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'DM Serif Display',serif;
+      font-size:1.1rem;color:var(--white);
+      position:relative;overflow:hidden;
+      flex-shrink:0;
+    }
+    .logo-mark::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);
+    }
+    .logo-text{font-family:'DM Sans',sans-serif;font-weight:600;font-size:1.1rem;letter-spacing:.02em;color:var(--white)}
+    .logo-text span{color:var(--purple-l)}
+    .logo-sub{font-size:.65rem;font-weight:400;color:var(--gray4);letter-spacing:.1em;text-transform:uppercase;margin-top:.1rem;display:block}
+
+    nav ul{display:flex;gap:2rem;list-style:none}
+    nav a{font-size:.82rem;font-weight:500;color:var(--gray4);text-decoration:none;transition:color .2s;letter-spacing:.01em}
+    nav a:hover{color:var(--white)}
+    .nav-cta{
+      background:var(--purple);color:var(--white)!important;
+      padding:.5rem 1.25rem;border-radius:8px;font-weight:600!important;
+      transition:background .2s,transform .2s!important;
+    }
+    .nav-cta:hover{background:var(--purple-d)!important;transform:translateY(-1px)}
+
+    /* ── HERO ── */
+    #hero{
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      justify-content:center;align-items:center;
+      text-align:center;
+      padding:7rem 5vw 5rem;
+      position:relative;overflow:hidden;
+    }
+
+    .hero-orb{
+      position:absolute;
+      width:800px;height:800px;
+      background:radial-gradient(circle,rgba(124,92,191,.15) 0%,transparent 65%);
+      top:-100px;left:50%;transform:translateX(-50%);
+      pointer-events:none;
+    }
+
+    .hero-orb2{
+      position:absolute;
+      width:400px;height:400px;
+      background:radial-gradient(circle,rgba(124,92,191,.08) 0%,transparent 70%);
+      bottom:0;right:-50px;pointer-events:none;
+    }
+
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:.5rem;
+      border:1px solid var(--border-p);
+      background:rgba(124,92,191,.08);
+      color:var(--purple-l);
+      font-size:.72rem;font-weight:600;
+      letter-spacing:.12em;text-transform:uppercase;
+      padding:.35rem 1rem;border-radius:100px;
+      margin-bottom:2rem;position:relative;z-index:1;
+    }
+    .hero-badge-dot{
+      width:5px;height:5px;background:var(--purple-l);
+      border-radius:50%;animation:pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
+    h1{
+      font-family:'DM Serif Display',serif;
+      font-size:clamp(3rem,7vw,6.5rem);
+      font-weight:400;line-height:1.0;
+      letter-spacing:-.02em;
+      max-width:14ch;margin:0 auto 1.5rem;
+      position:relative;z-index:1;
+    }
+
+    h1 em{font-style:italic;color:var(--purple-l)}
+
+    .hero-sub{
+      font-size:clamp(1rem,1.8vw,1.2rem);
+      font-weight:300;color:var(--gray4);
+      max-width:52ch;margin:0 auto 2.5rem;
+      line-height:1.75;position:relative;z-index:1;
+    }
+
+    .hero-actions{
+      display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+      position:relative;z-index:1;
+    }
+
+    .btn-primary{
+      background:var(--purple);color:var(--white);
+      padding:.875rem 2rem;border-radius:10px;
+      font-weight:600;font-size:.95rem;text-decoration:none;
+      transition:background .2s,transform .2s,box-shadow .2s;
+      box-shadow:0 0 30px rgba(124,92,191,.3);
+    }
+    .btn-primary:hover{background:var(--purple-d);transform:translateY(-2px);box-shadow:0 0 40px rgba(124,92,191,.5)}
+
+    .btn-ghost{
+      border:1px solid var(--border);color:var(--white);
+      padding:.875rem 2rem;border-radius:10px;
+      font-weight:500;font-size:.95rem;text-decoration:none;
+      transition:border-color .2s,transform .2s;
+    }
+    .btn-ghost:hover{border-color:var(--border-p);transform:translateY(-2px)}
+
+    /* ── DOLOR ── */
+    #dolor{background:var(--bg2);padding:6rem 5vw;position:relative;z-index:1}
+
+    .section-tag{
+      display:inline-block;font-size:.7rem;font-weight:600;
+      letter-spacing:.14em;text-transform:uppercase;
+      color:var(--purple-l);background:rgba(124,92,191,.1);
+      border:1px solid rgba(124,92,191,.2);
+      padding:.3rem .8rem;border-radius:100px;margin-bottom:1.25rem;
+    }
+
+    h2{
+      font-family:'DM Serif Display',serif;
+      font-size:clamp(2rem,4vw,3.2rem);
+      font-weight:400;letter-spacing:-.02em;line-height:1.1;
+      margin-bottom:1rem;
+    }
+
+    .section-intro{color:var(--gray4);font-size:1.05rem;max-width:50ch;line-height:1.75}
+
+    .dolor-grid{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:3rem;max-width:1000px;margin:3.5rem auto 0;align-items:start;
+    }
+
+    .dolor-col h3{
+      font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;
+      margin-bottom:1.25rem;display:flex;align-items:center;gap:.6rem;
+    }
+
+    .icon-bad{color:#e05c5c}
+    .icon-good{color:#5bbd8a}
+
+    .pain-list,.gain-list{display:flex;flex-direction:column;gap:.6rem}
+
+    .pain-item,.gain-item{
+      display:flex;align-items:flex-start;gap:.75rem;
+      font-size:.88rem;color:var(--gray4);line-height:1.55;
+      padding:.75rem 1rem;border-radius:10px;
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+    }
+
+    .pain-item .d{color:#e05c5c;font-size:1.1rem;margin-top:.05rem;flex-shrink:0}
+    .gain-item .d{color:#5bbd8a;font-size:1.1rem;margin-top:.05rem;flex-shrink:0}
+
+    /* ── SERVICIOS ── */
+    #servicios{padding:6rem 5vw;position:relative;z-index:1}
+
+    .services-header{max-width:1100px;margin:0 auto 3.5rem}
+
+    .services-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:1px;background:var(--border);
+      border:1px solid var(--border);border-radius:16px;overflow:hidden;
+      max-width:1100px;margin:0 auto;
+    }
+
+    .scard{
+      background:var(--bg);padding:2.25rem;
+      position:relative;transition:background .3s;
+      display:flex;flex-direction:column;
+    }
+    .scard::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--purple),transparent);
+      opacity:0;transition:opacity .3s;
+    }
+    .scard:hover{background:var(--bg3)}
+    .scard:hover::before{opacity:1}
+
+    .scard-icon{
+      width:44px;height:44px;
+      background:rgba(124,92,191,.1);
+      border:1px solid rgba(124,92,191,.2);
+      border-radius:11px;display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;margin-bottom:1.25rem;flex-shrink:0;
+    }
+
+    .scard h3{
+      font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;
+      margin-bottom:.5rem;letter-spacing:-.01em;
+    }
+
+    .scard p{font-size:.87rem;color:var(--gray4);line-height:1.65}
+
+    .scard-tag{
+      display:inline-block;margin-top:1rem;
+      font-family:'DM Mono',monospace;font-size:.65rem;font-weight:500;
+      color:var(--purple-l);background:rgba(124,92,191,.1);
+      padding:.25rem .6rem;border-radius:6px;letter-spacing:.05em;
+      align-self:flex-start;
+    }
+
+    /* ── CÓMO FUNCIONA ── */
+    #proceso{background:var(--bg2);padding:6rem 5vw;position:relative;z-index:1}
+
+    .proceso-wrap{max-width:700px;margin:3.5rem auto 0;position:relative}
+
+    .proceso-line{
+      position:absolute;left:22px;top:0;bottom:0;width:1px;
+      background:linear-gradient(180deg,var(--purple) 0%,transparent 100%);
+      opacity:.2;
+    }
+
+    .paso{
+      display:grid;grid-template-columns:44px 1fr;
+      gap:1.5rem;padding-bottom:2.5rem;position:relative;
+    }
+    .paso:last-child{padding-bottom:0}
+
+    .paso-num{
+      width:44px;height:44px;flex-shrink:0;
+      background:rgba(124,92,191,.12);border:1px solid var(--purple);
+      border-radius:11px;display:flex;align-items:center;justify-content:center;
+      font-family:'DM Mono',monospace;font-size:.75rem;font-weight:500;
+      color:var(--purple-l);position:relative;z-index:1;
+    }
+
+    .paso-body{padding-top:.5rem}
+    .paso-body h3{font-size:1rem;font-weight:600;margin-bottom:.4rem}
+    .paso-body p{font-size:.87rem;color:var(--gray4);line-height:1.65}
+
+    /* ── PARA QUIÉN ── */
+    #quien{padding:6rem 5vw;position:relative;z-index:1}
+
+    .quien-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:1.25rem;max-width:1000px;margin:3.5rem auto 0;
+    }
+
+    .quien-card{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:14px;padding:1.75rem;
+      transition:border-color .3s,transform .2s;
+    }
+    .quien-card:hover{border-color:var(--border-p);transform:translateY(-3px)}
+
+    .quien-icon{font-size:1.8rem;margin-bottom:1rem}
+    .quien-card h3{font-size:.95rem;font-weight:600;margin-bottom:.35rem}
+    .quien-card p{font-size:.83rem;color:var(--gray4);line-height:1.55}
+
+    /* ── CTA BAND ── */
+    .cta-band{
+      margin:0 4vw 6rem;
+      background:linear-gradient(135deg,var(--purple-d) 0%,var(--purple) 50%,var(--purple-l) 100%);
+      border-radius:20px;padding:4.5rem 3rem;text-align:center;
+      position:relative;overflow:hidden;z-index:1;
+    }
+    .cta-band::before{
+      content:'';position:absolute;inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+      pointer-events:none;
+    }
+    .cta-band h2{
+      font-family:'DM Serif Display',serif;
+      font-size:clamp(1.8rem,4vw,3rem);font-weight:400;
+      color:var(--white);margin-bottom:.75rem;position:relative;
+    }
+    .cta-band p{
+      color:rgba(255,255,255,.75);font-size:1rem;
+      margin-bottom:2rem;position:relative;
+    }
+    .btn-white{
+      background:var(--white);color:var(--purple-d);
+      padding:.875rem 2.25rem;border-radius:10px;
+      font-weight:700;font-size:.95rem;text-decoration:none;
+      display:inline-block;transition:opacity .2s,transform .2s;position:relative;
+    }
+    .btn-white:hover{opacity:.92;transform:translateY(-2px)}
+
+    /* ── CONTACTO ── */
+    #contacto{background:var(--bg2);padding:6rem 5vw;position:relative;z-index:1}
+
+    .contact-wrap{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:4rem;max-width:900px;margin:0 auto;align-items:start;
+    }
+
+    .contact-info p{
+      color:var(--gray4);font-size:.95rem;line-height:1.75;margin-bottom:2rem;
+    }
+
+    .contact-items{display:flex;flex-direction:column;gap:.9rem}
+
+    .ci{display:flex;align-items:flex-start;gap:1rem}
+
+    .ci-icon{
+      width:40px;height:40px;flex-shrink:0;
+      background:rgba(124,92,191,.1);border:1px solid rgba(124,92,191,.2);
+      border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;
+    }
+
+    .ci-text strong{
+      display:block;font-size:.72rem;color:var(--gray3);
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:.15rem;
+      font-weight:500;
+    }
+
+    .ci-text a,.ci-text span{color:var(--white);text-decoration:none;font-size:.9rem}
+    .ci-text a:hover{color:var(--purple-l)}
+
+    .contact-form{display:flex;flex-direction:column;gap:.85rem}
+
+    .contact-form input,
+    .contact-form textarea,
+    .contact-form select{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);border-radius:10px;
+      padding:.875rem 1rem;color:var(--white);
+      font-family:'DM Sans',sans-serif;font-size:.88rem;
+      width:100%;transition:border-color .2s;outline:none;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder{color:var(--gray3)}
+    .contact-form input:focus,
+    .contact-form textarea:focus,
+    .contact-form select:focus{border-color:rgba(124,92,191,.45)}
+    .contact-form select option{background:var(--bg)}
+    .contact-form textarea{height:110px;resize:vertical}
+    .contact-form button{
+      background:var(--purple);color:var(--white);border:none;
+      padding:.9rem;border-radius:10px;
+      font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;
+      cursor:pointer;transition:background .2s,box-shadow .2s;
+      box-shadow:0 0 20px rgba(124,92,191,.25);
+    }
+    .contact-form button:hover{background:var(--purple-d);box-shadow:0 0 30px rgba(124,92,191,.45)}
+    .form-ok{
+      display:none;text-align:center;padding:2rem;
+      border:1px solid var(--border-p);border-radius:12px;
+      color:var(--purple-l);font-weight:500;
+    }
+
+    /* ── PRIVACIDAD ── */
+    #privacidad{max-width:740px;margin:0 auto;padding:6rem 4vw;position:relative;z-index:1;border-top:1px solid var(--border)}
+
+    .pv h3{
+      font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500;
+      letter-spacing:.13em;text-transform:uppercase;color:var(--purple-l);
+      margin:2rem 0 .6rem;
+    }
+    .pv p,.pv ul{font-size:.88rem;color:var(--gray4);line-height:1.8}
+    .pv ul{padding-left:1.3rem}
+    .pv li{margin-bottom:.35rem}
+
+    /* ── FOOTER ── */
+    footer{
+      border-top:1px solid var(--border);
+      padding:2.5rem 5vw;
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:1rem;position:relative;z-index:1;
+    }
+
+    .footer-brand{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .footer-brand .lm{
+      width:28px;height:28px;background:var(--purple);border-radius:6px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'DM Serif Display',serif;font-size:.9rem;color:var(--white);
+    }
+    .footer-brand span{font-weight:600;font-size:.9rem;color:var(--white)}
+    .footer-brand small{font-size:.6rem;color:var(--gray3);letter-spacing:.08em;text-transform:uppercase}
+
+    footer p{font-size:.75rem;color:var(--gray3)}
+    .footer-by{font-size:.65rem;color:rgba(107,102,96,.5);letter-spacing:.05em}
+
+    footer nav ul{display:flex;gap:1.5rem;list-style:none}
+    footer nav a{font-size:.75rem;color:var(--gray3);text-decoration:none;transition:color .2s}
+    footer nav a:hover{color:var(--white)}
+
+    /* ── REVEAL ── */
+    .rev{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.25,.46,.45,.94),transform .7s cubic-bezier(.25,.46,.45,.94)}
+    .rev.on{opacity:1;transform:none}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      nav ul{display:none}
+      .dolor-grid{grid-template-columns:1fr}
+      .contact-wrap{grid-template-columns:1fr;gap:2.5rem}
+      footer{flex-direction:column}
+      .cta-band{margin:0 2vw 4rem;padding:3rem 1.5rem}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#inicio" class="logo">
+    <div class="logo-mark">C</div>
+    <div>
+      <span class="logo-text">CUADR<span>i</span>A</span>
+      <span class="logo-sub">Copiloto Contable</span>
+    </div>
+  </a>
+  <ul>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#proceso">Cómo funciona</a></li>
+    <li><a href="#quien">Para quién</a></li>
+    <li><a href="#contacto" class="nav-cta">Agendar demo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="inicio" style="position:relative;z-index:1">
+  <div id="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-orb2"></div>
+    <div class="hero-badge"><div class="hero-badge-dot"></div>Automatización para despachos contables</div>
+    <h1>Tu despacho en <em>piloto automático.</em></h1>
+    <p class="hero-sub">CUADRiA automatiza las tareas repetitivas que consumen horas de tu equipo — recepción de documentos, seguimiento a clientes, reportes y más. Tú enfócate en lo que importa.</p>
+    <div class="hero-actions">
+      <a href="#contacto" class="btn-primary">Agendar demo gratuita</a>
+      <a href="#servicios" class="btn-ghost">Ver qué automatizamos</a>
+    </div>
+  </div>
+</section>
+
+<!-- DOLOR -->
+<section id="dolor">
+  <div style="max-width:1000px;margin:0 auto">
+    <div class="rev">
+      <div class="section-tag">El problema</div>
+      <h2>¿Cuántas horas pierdes<br>en tareas que podrían ser automáticas?</h2>
+      <p class="section-intro">Los despachos contables más exitosos no trabajan más horas — trabajan con sistemas más inteligentes.</p>
+    </div>
+    <div class="dolor-grid rev">
+      <div class="dolor-col">
+        <h3><span class="icon-bad">✕</span> Sin CUADRiA</h3>
+        <div class="pain-list">
+          <div class="pain-item"><span class="d">×</span>Persiguiendo clientes por WhatsApp para que manden sus documentos</div>
+          <div class="pain-item"><span class="d">×</span>Revisando manualmente decenas de XMLs y facturas cada mes</div>
+          <div class="pain-item"><span class="d">×</span>Respondiendo las mismas preguntas de siempre a cada cliente</div>
+          <div class="pain-item"><span class="d">×</span>Armando reportes a mano que tardan horas en construirse</div>
+          <div class="pain-item"><span class="d">×</span>Perdiendo clientes por falta de seguimiento proactivo</div>
+        </div>
+      </div>
+      <div class="dolor-col">
+        <h3><span class="icon-good">✓</span> Con CUADRiA</h3>
+        <div class="gain-list">
+          <div class="gain-item"><span class="d">✓</span>Los clientes reciben recordatorios automáticos y mandan sus docs puntual</div>
+          <div class="gain-item"><span class="d">✓</span>Los XMLs y facturas se procesan, clasifican y validan solos</div>
+          <div class="gain-item"><span class="d">✓</span>Un asistente responde preguntas frecuentes 24/7 sin que intervengas</div>
+          <div class="gain-item"><span class="d">✓</span>Los reportes se generan y se mandan automáticamente cada mes</div>
+          <div class="gain-item"><span class="d">✓</span>Tu despacho se ve más profesional y retiene más clientes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="services-header rev">
+    <div class="section-tag">Servicios</div>
+    <h2>Lo que automatizamos<br>en tu despacho</h2>
+    <p class="section-intro">Cada solución está diseñada específicamente para el flujo de trabajo de un despacho contable mexicano.</p>
+  </div>
+  <div class="services-grid rev">
+
+    <div class="scard">
+      <div class="scard-icon">📥</div>
+      <h3>Recepción de Documentos vía WhatsApp</h3>
+      <p>Tus clientes mandan sus facturas, XMLs y estados de cuenta por WhatsApp. CUADRiA los recibe, clasifica y organiza automáticamente en las carpetas correctas sin que tu equipo intervenga.</p>
+      <span class="scard-tag">WhatsApp Business API</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-icon">🧾</div>
+      <h3>Procesamiento de Facturas y XMLs</h3>
+      <p>Extracción automática de datos del SAT, validación de XMLs, conciliación de facturas emitidas vs recibidas, y detección de inconsistencias antes de que sean un problema.</p>
+      <span class="scard-tag">API SAT · Validación automática</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-icon">🔔</div>
+      <h3>Recordatorios y Seguimiento a Clientes</h3>
+      <p>Envío automático de recordatorios cuando se acercan fechas del SAT, seguimiento a clientes que no han enviado documentos, y alertas escalonadas de cobranza — todo sin que levantes el teléfono.</p>
+      <span class="scard-tag">Flujos automáticos · Fechas SAT</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-icon">📊</div>
+      <h3>Reportes Automáticos para Clientes</h3>
+      <p>Generación y envío automático de reportes mensuales de ingresos, egresos y estado fiscal para cada cliente. Presentaciones limpias que hacen ver a tu despacho más profesional.</p>
+      <span class="scard-tag">Generación automática · PDF</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-icon">🤖</div>
+      <h3>Asistente de Atención al Cliente</h3>
+      <p>Un agente conversacional que responde las preguntas frecuentes de tus clientes 24/7 — estado de declaraciones, fechas límite, documentos pendientes — sin ocupar a tu equipo.</p>
+      <span class="scard-tag">IA · WhatsApp · 24/7</span>
+    </div>
+
+    <div class="scard">
+      <div class="scard-icon">🗂️</div>
+      <h3>Onboarding y Gestión de Clientes Nuevos</h3>
+      <p>Alta automática del cliente nuevo en todos tus sistemas, creación de carpetas, envío de bienvenida con instrucciones y checklist de documentos requeridos. Primeras impresiones impecables.</p>
+      <span class="scard-tag">Onboarding automatizado</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section id="proceso">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="rev">
+      <div class="section-tag">Cómo funciona</div>
+      <h2>De la idea a producción<br>en semanas, no meses</h2>
+      <p class="section-intro">Un proceso estructurado que minimiza la interrupción de tu operación actual.</p>
+    </div>
+    <div class="proceso-wrap rev">
+      <div class="proceso-line"></div>
+      <div class="paso">
+        <div class="paso-num">01</div>
+        <div class="paso-body">
+          <h3>Diagnóstico de tu despacho</h3>
+          <p>Auditamos tus procesos actuales, identificamos los cuellos de botella más costosos y priorizamos las automatizaciones con mayor retorno inmediato para tu operación específica.</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">02</div>
+        <div class="paso-body">
+          <h3>Diseño de la solución</h3>
+          <p>Construimos la arquitectura de automatización a la medida de tu despacho: integraciones con tus herramientas actuales, flujos de WhatsApp, procesamiento de documentos y lógica de negocio.</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">03</div>
+        <div class="paso-body">
+          <h3>Implementación y pruebas</h3>
+          <p>Desarrollamos e integramos todo en un entorno controlado. Probamos cada flujo con casos reales de tu despacho antes de activar nada en producción.</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">04</div>
+        <div class="paso-body">
+          <h3>Activación y soporte continuo</h3>
+          <p>Lanzamos el sistema, capacitamos a tu equipo en 30 minutos y te acompañamos en la adopción. Monitoreo activo, ajustes y soporte técnico incluidos en el retainer mensual.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section id="quien">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="rev">
+      <div class="section-tag">Para quién</div>
+      <h2>Diseñado para despachos<br>que quieren crecer sin crecer</h2>
+      <p class="section-intro">CUADRiA está hecho para despachos que ya tienen clientes y quieren manejar más sin contratar más gente.</p>
+    </div>
+    <div class="quien-grid rev">
+      <div class="quien-card">
+        <div class="quien-icon">🏢</div>
+        <h3>Despachos medianos</h3>
+        <p>Con 30-200 clientes activos y 2-10 contadores. El punto exacto donde la automatización tiene mayor impacto.</p>
+      </div>
+      <div class="quien-card">
+        <div class="quien-icon">📈</div>
+        <h3>Despachos en crecimiento</h3>
+        <p>Que están sumando clientes rápido y necesitan procesos que escalen sin que la operación se caiga.</p>
+      </div>
+      <div class="quien-card">
+        <div class="quien-icon">⏱️</div>
+        <h3>Contadores saturados</h3>
+        <p>Que pasan más tiempo persiguiendo documentos y respondiendo WhatsApps que haciendo contabilidad real.</p>
+      </div>
+      <div class="quien-card">
+        <div class="quien-icon">🎯</div>
+        <h3>Despachos que quieren diferenciarse</h3>
+        <p>Que quieren ofrecerle a sus clientes una experiencia más moderna, profesional y organizada que la competencia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band rev">
+  <h2>¿Listo para recuperar tu tiempo?</h2>
+  <p>Agenda una demo gratuita de 30 minutos y te mostramos exactamente qué procesos de tu despacho podemos automatizar esta semana.</p>
+  <a href="#contacto" class="btn-white">Agendar demo gratuita →</a>
+</div>
+
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="contact-wrap">
+    <div class="contact-info rev">
+      <div class="section-tag">Contacto</div>
+      <h2>Hablemos de<br>tu despacho</h2>
+      <p>Cuéntanos cuántos clientes tienes y qué procesos te están consumiendo más tiempo. Respondemos en menos de 24 horas.</p>
+      <div class="contact-items">
+        <div class="ci">
+          <div class="ci-icon">✉️</div>
+          <div class="ci-text">
+            <strong>Email</strong>
+            <a href="mailto:naitsabescp@gmail.com">naitsabescp@gmail.com</a>
+          </div>
+        </div>
+        <div class="ci">
+          <div class="ci-icon">💬</div>
+          <div class="ci-text">
+            <strong>WhatsApp</strong>
+            <a href="https://wa.me/5215500000000" target="_blank">+52 55 0000-0000</a>
+          </div>
+        </div>
+        <div class="ci">
+          <div class="ci-icon">📍</div>
+          <div class="ci-text">
+            <strong>Ubicación</strong>
+            <span>México · Atención nacional</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rev">
+      <form class="contact-form" id="cForm">
+        <input type="text" placeholder="Tu nombre" required/>
+        <input type="email" placeholder="Correo electrónico" required/>
+        <input type="text" placeholder="Nombre de tu despacho"/>
+        <select>
+          <option value="" disabled selected>¿Cuántos clientes tienes?</option>
+          <option>Menos de 30 clientes</option>
+          <option>30 a 80 clientes</option>
+          <option>80 a 150 clientes</option>
+          <option>Más de 150 clientes</option>
+        </select>
+        <textarea placeholder="¿Qué proceso te consume más tiempo cada mes?"></textarea>
+        <button type="submit">Agendar demo gratuita →</button>
+      </form>
+      <div class="form-ok" id="fOk">✅ ¡Recibido! Te contactamos en menos de 24 horas.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACIDAD -->
+<section id="privacidad">
+  <div class="section-tag">Legal</div>
+  <h2 style="margin-bottom:2.5rem">Aviso de Privacidad</h2>
+  <div class="pv">
+    <h3>1. Responsable del tratamiento</h3>
+    <p>CUADRiA, marca de XAVEN GROUP LLC, es responsable del tratamiento de sus datos personales. Contacto: naitsabescp@gmail.com · Ciudad de México, México.</p>
+    <h3>2. Datos que recabamos</h3>
+    <ul>
+      <li>Nombre completo y datos de contacto (email, teléfono)</li>
+      <li>Nombre del despacho e información del negocio</li>
+      <li>Información sobre procesos contables compartida durante la consultoría</li>
+      <li>Datos técnicos de navegación (cookies de funcionalidad)</li>
+    </ul>
+    <h3>3. Finalidad del tratamiento</h3>
+    <ul>
+      <li>Atender solicitudes de demo, cotización y contacto</li>
+      <li>Proveer los servicios de automatización contratados</li>
+      <li>Enviar comunicaciones sobre actualizaciones del servicio</li>
+      <li>Cumplir con obligaciones legales y contractuales</li>
+    </ul>
+    <h3>4. WhatsApp Business</h3>
+    <p>CUADRiA utiliza la plataforma WhatsApp Business (Meta Platforms, Inc.) para comunicación de servicio, notificaciones y automatizaciones contratadas. Al proporcionar su número acepta recibir mensajes relacionados con el servicio. Puede solicitar la cancelación respondiendo STOP o escribiendo a naitsabescp@gmail.com.</p>
+    <h3>5. Transferencia de datos</h3>
+    <p>No vendemos ni compartimos sus datos con terceros, salvo proveedores de infraestructura tecnológica bajo acuerdos de confidencialidad, o cuando lo exija la ley.</p>
+    <h3>6. Derechos ARCO</h3>
+    <p>Puede ejercer sus derechos de Acceso, Rectificación, Cancelación y Oposición escribiendo a naitsabescp@gmail.com. Respondemos en 20 días hábiles.</p>
+    <h3>7. Última actualización</h3>
+    <p>24 de marzo de 2026.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#inicio" class="footer-brand">
+    <div class="lm">C</div>
+    <div>
+      <span>CUADRiA</span>
+      <small style="display:block">by XAVEN GROUP</small>
+    </div>
+  </a>
+  <p>© 2026 CUADRiA · XAVEN GROUP LLC. Todos los derechos reservados.</p>
+  <nav>
+    <ul>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#privacidad">Privacidad</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+</footer>
+
+<script>
+  // REVEAL
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e,i) => {
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.add('on'), i*80);
+        obs.unobserve(e.target);
+      }
+    });
+  },{threshold:.08});
+  document.querySelectorAll('.rev').forEach(el=>obs.observe(el));
+
+  // FORM
+  document.getElementById('cForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    this.style.display='none';
+    document.getElementById('fOk').style.display='block';
+  });
+
+  // SMOOTH SCROLL
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      e.preventDefault();
+      const t=document.querySelector(a.getAttribute('href'));
+      if(t) t.scrollIntoView({behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>
